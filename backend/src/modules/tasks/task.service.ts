@@ -14,12 +14,12 @@ export class TaskService {
   ) {}
 
   findAll(userId: number) {
-    return this.taskRepository.find({ where: { user: { id: userId } } });
+    return this.taskRepository.find({ where: { userId } });
   }
   async create(createTaskDto: TaskDto, user: User) {
     const existingUser = await this.userService.findUser(user.email);
     if (!existingUser) {
-        throw new Error('User not found');
+      throw new Error('User not found');
     }
     const task = this.taskRepository.create({
         ...createTaskDto,
@@ -30,11 +30,27 @@ export class TaskService {
     return this.taskRepository.save(task);
   }
 
-  update(id: number, updateTaskDto: Partial<TaskDto>) {
-    return this.taskRepository.update(id, updateTaskDto);
+  async update(userId: number,id: number, updateTaskDto: Partial<TaskDto>) {
+    const task = await this.taskRepository.findOne({ where: { id } });
+    if (!task) {
+      throw new Error('Task not found');
+    }
+    if (task.userId !== userId) {
+      throw new Error('You are not authorized to update this task.');
+    }
+
+    await this.taskRepository.update(id, updateTaskDto);
+    return this.taskRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
+  async remove(userId: number, id: number) {
+    const task = await this.taskRepository.findOne({ where: { id } });
+    if (!task) {
+      throw new Error('Task not found');
+    }
+    if (task.userId !== userId) {
+      throw new Error('You are not authorized to delete this task.');
+    }
     return this.taskRepository.delete(id);
   }
 }

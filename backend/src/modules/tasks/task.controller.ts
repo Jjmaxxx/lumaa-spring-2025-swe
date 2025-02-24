@@ -20,7 +20,7 @@ constructor(private taskService: TaskService) {}
 
 @Get('getAll')
 findAll(@Req() req) {
-    return this.taskService.findAll(req.user.id); 
+    return this.taskService.findAll(req.user.sub); 
 }
 
 @Post('create')
@@ -29,12 +29,12 @@ create(@Body() createTaskDto: TaskDto, @Req() req) {
 }
 
 @Put('/update/:id')
-update(@Param('id') id: number, @Body() updateTaskDto: TaskDto) {
-    return this.taskService.update(id, updateTaskDto);
+update(@Param('id') id: number, @Body() updateTaskDto: TaskDto, @Req() req) {
+    return this.taskService.update(req.user.sub,id, updateTaskDto);
 }
 
 @Delete('/delete/:id')
-remove(@Param('id') id: number) {
-    return this.taskService.remove(id);
+remove(@Param('id') id: number, @Req() req) {
+    return this.taskService.remove(req.user.sub,id);
 }
 }

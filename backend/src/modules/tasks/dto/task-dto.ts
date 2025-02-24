@@ -9,5 +9,5 @@ export class TaskDto {
 
   @IsOptional()
   @IsBoolean()
-  isComplete?: boolean;
+  isComplete?: boolean = false;
 }
